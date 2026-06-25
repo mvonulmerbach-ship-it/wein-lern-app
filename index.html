@@ -1326,3 +1326,15 @@ function finishSession(){
     <p class="xpgain">+${gained} XP</p>
     <p style="color:var(--muted);font-size:13px">🔥 Streak: ${state.streak} Tag${state.streak>1?"e":""}</p>
   </div>`;
+  const nb=document.getElementById("nextBtn");
+  nb.textContent="Zurück zur Übersicht"; nb.disabled=false;
+  nb.onclick=()=>{ nb.onclick=nextHandler; closeRun(); };
+}
+const nextHandler=document.getElementById("nextBtn").onclick;
+
+/* ---------- INIT ---------- */
+applyTheme();
+renderHome();
+</script>
+</body>
+</html>
