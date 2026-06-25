@@ -140,6 +140,14 @@ header{
 .wheelview svg{display:block; margin:0 auto}
 .empty{text-align:center; color:var(--muted); padding:40px 20px; font-size:15px}
 footer{text-align:center; color:var(--muted); font-size:11px; margin-top:30px}
+.wheelfull{position:fixed; inset:0; z-index:60; background:var(--bg); display:none; flex-direction:column}
+.wheelfull.on{display:flex}
+.wfbar{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--line)}
+.wftitle{font-weight:800}
+.wfclose{background:none; border:0; font-size:20px; color:var(--ink); cursor:pointer; padding:6px 10px; border-radius:10px}
+.wfclose:hover{background:var(--line)}
+.wfbody{flex:1; min-height:0}
+.wfbody iframe{display:block; width:100%; height:100%; border:0}
 </style>
 </head>
 <body class="mode-grund">
@@ -154,9 +162,14 @@ footer{text-align:center; color:var(--muted); font-size:11px; margin-top:30px}
 <div class="tabs">
   <div class="tab on" data-track="grund">🍇 Grundlagen</div>
   <div class="tab" data-track="tief">🥂 Vertiefung</div>
+  <div class="tab" data-track="rad">🎡 Aromarad</div>
 </div>
 
 <div id="home"></div>
+<div id="wheelFull" class="wheelfull">
+  <div class="wfbar"><span class="wftitle">🎡 Aromarad</span><button id="wfClose" class="wfclose" aria-label="Schließen">✕</button></div>
+  <div class="wfbody" id="wfBody"></div>
+</div>
 
 <footer>Vino · selbstgebaute Wein-Lern-App · Fortschritt wird lokal im Browser gespeichert</footer>
 
@@ -1112,6 +1125,7 @@ document.getElementById("themeBtn").onclick=()=>{ state.theme = state.theme==="d
 /* ---------- NAV ---------- */
 document.querySelectorAll(".tab").forEach(tab=>{
   tab.onclick=()=>{
+    if(tab.dataset.track==="rad"){ openWheelFull(); return; }
     track=tab.dataset.track;
     document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on", t===tab));
     document.body.className = "mode-"+track;
@@ -1185,6 +1199,20 @@ function closeRun(){
   document.getElementById("run").classList.remove("on");
   session=null; save(); renderHome();
 }
+
+/* ---------- Aromarad Vollbild ---------- */
+function openWheelFull(){
+  const t = state.theme==="dark"?"dark":"light";
+  document.getElementById("wfBody").innerHTML =
+    '<iframe src="https://mvonulmerbach-ship-it.github.io/aroma-rad/?theme='+t+'" title="Aromarad" loading="lazy"></iframe>';
+  document.getElementById("wheelFull").classList.add("on");
+}
+function closeWheelFull(){
+  document.getElementById("wheelFull").classList.remove("on");
+  document.getElementById("wfBody").innerHTML="";
+}
+document.getElementById("wfClose").onclick=closeWheelFull;
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeWheelFull(); });
 
 let cardAnswered=false;
 function renderCard(){
