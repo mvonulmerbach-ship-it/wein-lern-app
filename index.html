@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#7a1f3d">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -124,10 +124,11 @@ header{
 .wheelfilters .wf{border:1px solid var(--line); background:var(--bg); color:var(--ink);
   padding:8px 14px; border-radius:999px; font-size:14px; font-weight:700; cursor:pointer}
 .wheelfilters .wf.on{background:var(--accent); color:#fff; border-color:var(--accent)}
-.wseg{stroke:var(--card); stroke-width:1.2}
-.wlbl{fill:var(--ink); font-weight:600; pointer-events:none}
+.wseg{stroke:#ffffff; stroke-width:1.2}
+.wlbl{fill:#2a2024; font-weight:600; pointer-events:none}
 .wlbl-cat{fill:#fff; font-weight:800; pointer-events:none}
 .wcenter{fill:var(--card); stroke:var(--line); stroke-width:2}
+.wctext{fill:var(--ink); pointer-events:none}
 .empty{text-align:center; color:var(--muted); padding:40px 20px; font-size:15px}
 footer{text-align:center; color:var(--muted); font-size:11px; margin-top:30px}
 </style>
@@ -1041,8 +1042,8 @@ const AROMA = [{"id": "fruchtig", "name": "Fruchtig", "farbe": "#E84C5A", "unter
       a=ca1+GAP;
     }
     mk(svg,"circle",{cx:CX,cy:CY,r:R0-6,class:"wcenter"});
-    mk(svg,"text",{x:CX,y:CY-6,"text-anchor":"middle","font-size":22,"font-weight":800,class:"wlbl"},"AROMA");
-    mk(svg,"text",{x:CX,y:CY+20,"text-anchor":"middle","font-size":14,class:"wlbl",opacity:.7}, filter==="wein"?"Wein":filter==="kaffee"?"Kaffee":"Wein & Kaffee");
+    mk(svg,"text",{x:CX,y:CY-6,"text-anchor":"middle","font-size":22,"font-weight":800,class:"wctext"},"AROMA");
+    mk(svg,"text",{x:CX,y:CY+20,"text-anchor":"middle","font-size":14,class:"wctext",opacity:.7}, filter==="wein"?"Wein":filter==="kaffee"?"Kaffee":"Wein & Kaffee");
   };
 })();
 
