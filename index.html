@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#7a1f3d">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -129,6 +129,15 @@ header{
 .wlbl-cat{fill:#fff; font-weight:800; pointer-events:none}
 .wcenter{fill:var(--card); stroke:var(--line); stroke-width:2}
 .wctext{fill:var(--ink); pointer-events:none}
+.wheelzoom{display:flex; gap:8px; align-items:center; justify-content:center; margin:2px 0 8px; flex-wrap:wrap}
+.wheelzoom .wz{min-width:42px; height:36px; border:1px solid var(--line); background:var(--bg); color:var(--ink);
+  border-radius:11px; font-size:19px; font-weight:800; cursor:pointer; line-height:1}
+.wheelzoom .wz.fit{font-size:13px; padding:0 12px}
+.wheelzoom .wzhint{font-size:11px; color:var(--muted)}
+.wheelview{width:100%; max-height:64vh; overflow:auto; border:1px solid var(--line); border-radius:14px;
+  background:var(--bg); touch-action:none; cursor:grab; -webkit-overflow-scrolling:touch}
+.wheelview:active{cursor:grabbing}
+.wheelview svg{display:block; margin:0 auto}
 .empty{text-align:center; color:var(--muted); padding:40px 20px; font-size:15px}
 footer{text-align:center; color:var(--muted); font-size:11px; margin-top:30px}
 </style>
@@ -1204,20 +1213,12 @@ function renderCard(){
       <div class="kicker">${c.kicker||"Aromarad"}</div>
       <h2>${c.h||"Aromarad"}</h2>
       ${c.note?`<p style="font-size:14px;color:var(--muted)">${c.note}</p>`:""}
-      <div class="wheelfilters">
-        <button class="wf on" data-f="wein">🍷 Wein</button>
-        <button class="wf" data-f="kaffee">☕ Kaffee</button>
-        <button class="wf" data-f="beide">Beide</button>
+      <div style="margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+        <iframe src="https://mvonulmerbach-ship-it.github.io/aroma-rad/"
+          title="Aromarad" loading="lazy"
+          style="display:block;width:100%;height:78vh;max-height:720px;min-height:480px;border:0"></iframe>
       </div>
-      <svg id="aromaSvg" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"></svg>
     </div>`;
-    drawWheel(document.getElementById("aromaSvg"),"wein");
-    area.querySelectorAll(".wf").forEach(btn=>{
-      btn.onclick=()=>{
-        area.querySelectorAll(".wf").forEach(x=>x.classList.toggle("on",x===btn));
-        drawWheel(document.getElementById("aromaSvg"),btn.dataset.f);
-      };
-    });
     enableNext(true);
   }
   else if(c.t==="mc"){
