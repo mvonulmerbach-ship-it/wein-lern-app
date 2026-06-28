@@ -4647,8 +4647,8 @@ function applyTheme(){
   else{document.documentElement.removeAttribute('data-theme');$('themeBtn').textContent='🌙';}
 }
 $('themeBtn').onclick=function(){store.theme=(store.theme==='dark')?'light':'dark';save();applyTheme();
-  var fr=document.getElementById('aromaFrame');
-  if(fr&&fr.contentWindow){try{fr.contentWindow.postMessage({type:'aromarad-theme',value:store.theme==='dark'?'dark':'light'},'*');}catch(e){}}};
+  var v=store.theme==='dark'?'dark':'light';
+  document.querySelectorAll('iframe').forEach(function(fr){ if(fr.contentWindow){try{fr.contentWindow.postMessage({type:'aromarad-theme',value:v},'*');}catch(e){}} });};
 
 /* ---------- streak ---------- */
 function bumpStreak(){
@@ -5043,8 +5043,34 @@ function finish(){
   $('resHome').onclick=function(){ renderHome();};
 }
 
+/* ---------- floating aromarad button ---------- */
+function initWheelFab(){
+  if(!CFG.tracks.some(function(t){return t.wheel;})) return;
+  var st=document.createElement('style');
+  st.textContent='.fab{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:55;width:54px;height:54px;border-radius:50%;background:var(--brand);color:#fff;font-size:25px;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.3);border:2px solid var(--card)}'
+    +'.fab:active{transform:translateY(1px)}'
+    +'.has-fab .foot{padding-left:64px}'
+    +'.sheet{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;flex-direction:column}'
+    +'.sheet.on{display:flex}'
+    +'.sheetbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:var(--card)}'
+    +'.sheetbar b{flex:1;font-weight:800;font-size:16px}'
+    +'.sheetbar button{font-size:19px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:6px 12px}'
+    +'.sheet iframe{flex:1;width:100%;border:0;display:block}';
+  document.head.appendChild(st);
+  document.body.classList.add('has-fab');
+  var fab=el('button','fab','🎡'); fab.setAttribute('aria-label','Aromarad öffnen');
+  var sheet=el('div','sheet');
+  var bar=el('div','sheetbar'); var title=el('b',null,'🎡 Aromarad'); var close=el('button',null,'✕'); close.setAttribute('aria-label','Schließen');
+  bar.appendChild(title); bar.appendChild(close);
+  var ifr=document.createElement('iframe'); ifr.id='aromaFabFrame'; ifr.title='Aromarad';
+  sheet.appendChild(bar); sheet.appendChild(ifr);
+  document.body.appendChild(fab); document.body.appendChild(sheet);
+  fab.onclick=function(){ if(!ifr.getAttribute('src')){ ifr.setAttribute('src',(CFG.wheelSrc||'aromarad.html')+'?theme='+((store.theme==='dark')?'dark':'light')); } sheet.classList.add('on'); };
+  close.onclick=function(){ sheet.classList.remove('on'); };
+}
+
 /* ---------- init ---------- */
-applyTheme(); refreshHeader(); renderHome();
+applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 </script>
 </body>
 </html>
