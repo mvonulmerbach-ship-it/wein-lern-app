@@ -4773,7 +4773,7 @@ function buildQ(q){
   var card=el('div','card');
   card.innerHTML=k;
   var qt = q.q || q.front || q.prompt || '';
-  card.appendChild(el('div','qtext', qt));
+  if(q.ty!=='flip') card.appendChild(el('div','qtext', qt));
   return card;
 }
 function kickerLabel(ty){
@@ -5005,10 +5005,12 @@ function renderEst(q,card){
 
 /* flip */
 function renderFlip(q,card){
+  card.insertBefore(el('div','qsub','Überlege, dann Antwort zeigen:'),$('cardFb'));
   var fc=el('div','flipcard', q.front); card.insertBefore(fc,$('cardFb'));
-  function flip(){ phase=1; fc.innerHTML=q.reveal; fc.style.borderColor='var(--brand)';
+  function flip(){ fc.innerHTML=q.reveal; fc.style.borderColor='var(--brand)';
     setFoot([{label:'❌ Wusste ich nicht',cls:'ghost',fn:function(){reveal(false,q,{self:true,body:q.reveal});}},
-             {label:'✅ Gewusst',cls:'good',fn:function(){reveal(true,q,{self:true,body:q.reveal});}}]); }
+             {label:'✅ Gewusst',cls:'good',fn:function(){reveal(true,q,{self:true,body:q.reveal});}}]);
+    try{fc.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){} }
   setFoot([{label:'Antwort zeigen',fn:flip}]);
 }
 
@@ -5017,6 +5019,7 @@ function renderRecall(q,card){
   if(q.hint) card.insertBefore(el('div','hintbox','💡 Tipp: '+q.hint),$('cardFb'));
   function show(){
     var mb=el('div','modelbox','<b>Musterantwort:</b><br>'+q.model); card.insertBefore(mb,$('cardFb'));
+    try{mb.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}
     setFoot([{label:'❌ Wusste ich nicht',cls:'ghost',fn:function(){reveal(false,q,{self:true,body:q.model});}},
              {label:'✅ Gewusst',cls:'good',fn:function(){reveal(true,q,{self:true,body:q.model});}}]);
   }
@@ -5047,9 +5050,9 @@ function finish(){
 function initWheelFab(){
   if(!CFG.tracks.some(function(t){return t.wheel;})) return;
   var st=document.createElement('style');
-  st.textContent='.fab{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:55;width:54px;height:54px;border-radius:50%;background:var(--brand);color:#fff;font-size:25px;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.3);border:2px solid var(--card)}'
+  st.textContent='.fab{position:fixed;left:14px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:55;width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;font-size:24px;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.3);border:2px solid var(--card)}'
     +'.fab:active{transform:translateY(1px)}'
-    +'.has-fab .foot{padding-left:64px}'
+    +'.fab .fabi{line-height:1;transform:translateY(1px)}'
     +'.sheet{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;flex-direction:column}'
     +'.sheet.on{display:flex}'
     +'.sheetbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:var(--card)}'
@@ -5058,7 +5061,7 @@ function initWheelFab(){
     +'.sheet iframe{flex:1;width:100%;border:0;display:block}';
   document.head.appendChild(st);
   document.body.classList.add('has-fab');
-  var fab=el('button','fab','🎡'); fab.setAttribute('aria-label','Aromarad öffnen');
+  var fab=el('button','fab','<span class="fabi">🎡</span>'); fab.setAttribute('aria-label','Aromarad öffnen');
   var sheet=el('div','sheet');
   var bar=el('div','sheetbar'); var title=el('b',null,'🎡 Aromarad'); var close=el('button',null,'✕'); close.setAttribute('aria-label','Schließen');
   bar.appendChild(title); bar.appendChild(close);
