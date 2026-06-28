@@ -5075,5 +5075,95 @@ function initWheelFab(){
 /* ---------- init ---------- */
 applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 </script>
+
+<style id="dl-style">
+/* --- Einhand-Layout: Quiz-Inhalt nach unten --- */
+.wrap{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;box-sizing:border-box}
+.wrap>header{flex:0 0 auto}
+#quizView:not(.hidden){flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+#quizView #cardSlot{flex:1 1 auto;display:flex;flex-direction:column;overflow:auto;min-height:0}
+#quizView #cardSlot>.card{margin-top:auto}
+#quizView .foot{flex:0 0 auto}
+#resultView:not(.hidden){flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+/* --- Lern-Overlay (Duolingo-Stil) --- */
+.dlov{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column}
+.dlov *{box-sizing:border-box}
+.dlov .dlhead{flex:0 0 auto;padding:20px 18px 6px}
+.dlov .dlkick{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;font-weight:800}
+.dlov .dltitle{font-size:24px;font-weight:800;margin-top:4px;line-height:1.15}
+.dlov .dlscroll{flex:1 1 auto;overflow:auto;padding:10px 18px 18px;min-height:0;-webkit-overflow-scrolling:touch}
+.dlov .dllead{font-size:16px;line-height:1.5;margin:6px 0 14px;opacity:.92}
+.dlov .dlpt{display:flex;gap:11px;align-items:flex-start;padding:12px 13px;border-radius:14px;margin:9px 0;font-size:15px;line-height:1.4}
+.dlov .dlpt .dld{flex:0 0 auto;width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
+.dlov .dlmore{margin-top:16px;font-size:14px;line-height:1.5;border-radius:14px;padding:13px 14px}
+.dlov .dlmore b{display:block;margin-bottom:5px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+.dlov .dlfoot{flex:0 0 auto;padding:12px 18px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px}
+.dlov .dlgo{border:none;border-radius:16px;padding:17px;font-size:17px;font-weight:800;color:#fff;cursor:pointer;width:100%}
+.dlov .dlgo:active{filter:brightness(.93)}
+.dlov .dlskip{background:none;border:none;font-size:13px;opacity:.55;cursor:pointer;padding:8px;color:inherit}
+</style>
+<script id="dl-lessons" type="application/json">{"cats":{"Wein verstehen":{"lead":"Wein entsteht durch Gärung von Traubensaft – Rebsorte, Klima und Handwerk prägen den Stil.","points":["Hefe wandelt Zucker in Alkohol und CO₂ um (Gärung).","Rotwein vergärt mit Schalen (Farbe & Tannin), Weißwein meist ohne.","„Terroir“ = Zusammenspiel von Boden, Klima und Lage.","Stahltank = frisch; Holzfass = würziger und cremiger."],"more":"Restzucker, Säure, Alkohol und Tannin bilden das Geschmacksgerüst."},"Geschmack & Verkostung":{"lead":"Verkosten heißt sehen, riechen, schmecken – in dieser Reihenfolge.","points":["Sehen: Farbe & Klarheit verraten Alter und Sorte.","Riechen: Schwenken setzt Aromen frei (Frucht, Würze, Holz).","Schmecken: Süße, Säure, Tannin, Körper, Abgang beachten.","Tannin trocknet/zieht zusammen; Säure macht den Mund wässrig."],"more":"„Trocken“ heißt wenig Restzucker – nicht „herb durch Tannin“."},"Servieren & Genießen":{"lead":"Temperatur, Glas und Timing entscheiden über den Genuss mit.","points":["Weißwein kühler (ca. 8–12 °C), Rotwein ca. 16–18 °C.","Junge, tanninreiche Rote profitieren vom Dekantieren/Belüften.","Großes Glas für Rotwein, schlanker für frischen Weißwein.","Faustregel: kräftiges Gericht → kräftiger Wein."],"more":"Säurebetonte Weine sind oft die flexibelsten Essensbegleiter."},"Weiße Rebsorten":{"lead":"Weiße Sorten reichen von knackig-frisch bis cremig-üppig – ein paar Leitsorten genügen zur Orientierung.","points":["Riesling: hohe Säure, Apfel/Zitrus/Pfirsich, oft langlebig.","Sauvignon Blanc: grasig, Stachelbeere, sehr aromatisch.","Chardonnay: wandelbar – von stählern bis butterig.","Grauburgunder/Pinot Gris: mild, körperreich."],"more":"Säure ist bei Weißwein das Rückgrat für Frische und Lagerfähigkeit."},"Rote Rebsorten":{"lead":"Rote Sorten unterscheiden sich vor allem in Tannin, Frucht und Körper.","points":["Cabernet Sauvignon: tanninreich, schwarze Johannisbeere, Struktur.","Pinot Noir/Spätburgunder: hell, feine Frucht, wenig Tannin.","Merlot: weich, pflaumig, zugänglich.","Syrah/Shiraz: dunkel, pfeffrig-würzig."],"more":"Tannin stammt aus Schalen, Kernen und Holz – es macht Wein lagerfähig."},"Regionen Deutschland":{"lead":"Deutschland ist Riesling-Land – kühles Klima bringt Finesse und Säure.","points":["13 Anbaugebiete, u. a. Mosel, Rheingau, Pfalz, Baden.","Mosel: filigrane, oft restsüße Rieslinge von Steillagen.","Prädikate: Kabinett, Spätlese, Auslese … (steigende Reife).","„Trocken“, „feinherb“, „edelsüß“ beschreiben den Restzucker."],"more":"Die VDP-Klassifikation gliedert nach Lagen (Gutswein bis Großes Gewächs)."},"Regionen Frankreich":{"lead":"Frankreich denkt in Herkunft („Appellation“), nicht in Rebsorte auf dem Etikett.","points":["Bordeaux: Cuvées aus Cabernet/Merlot, links- vs. rechtsufrig.","Burgund: Pinot Noir & Chardonnay, kleinteilige Lagen („Climats“).","Champagne: Schaumwein per traditioneller Flaschengärung.","Rhône: Syrah (Nord) und Grenache-Cuvées (Süd)."],"more":"AOC/AOP garantiert Herkunft und Regeln, nicht automatisch Spitzenqualität."},"Regionen Europa":{"lead":"Neben Frankreich prägen Italien, Spanien & Co. die europäische Weinwelt.","points":["Italien: Sangiovese (Chianti), Nebbiolo (Barolo), riesige Vielfalt.","Spanien: Tempranillo (Rioja), oft mit Eichenausbau („Crianza/Reserva“).","Portugal: Port (aufgespritet) und kräftige Douro-Rote.","DOC/DOCG (IT) und DO/DOCa (ES) sind Herkunftssiegel."],"more":"Kühlere Höhenlagen liefern auch im Süden frische Weine."},"Neue Welt":{"lead":"„Neue Welt“ meint Weinländer außerhalb Europas – oft sortenrein und fruchtbetont.","points":["Etikett nennt meist die Rebsorte (z. B. „Malbec“).","Argentinien: Malbec; Chile: Cabernet/Carménère.","Australien: Shiraz; Neuseeland: Sauvignon Blanc (Marlborough).","USA: Kalifornien (Napa) für kräftige Cabernets & Chardonnay."],"more":"Wärmeres Klima → reifere Frucht, mehr Alkohol, weichere Säure."},"Schaumwein":{"lead":"Die Bläschen kommen von CO₂ aus einer zweiten Gärung.","points":["Méthode traditionnelle: zweite Gärung in der Flasche (Champagner, Cava, Sekt b. A.).","Tankgärung (Charmat): fruchtig & günstiger (z. B. Prosecco).","Süßegrade: Brut Nature/Brut … bis Doux.","Kühl servieren (~6–8 °C), hohes Glas für stehende Perlage."],"more":"„Champagner“ darf nur aus der Champagne kommen – sonst Crémant, Sekt, Cava …"},"Süßwein & Rosé":{"lead":"Süße und Rosé entstehen durch gezielte Technik – nicht durch Zucker im Glas.","points":["Edelsüße: Botrytis („Edelfäule“) konzentriert Zucker (Sauternes, Auslesen).","Eiswein: gefrorene Trauben werden gepresst.","Rosé: kurzer Schalenkontakt roter Trauben gibt die Farbe.","Süße braucht Säure als Gegenspieler, sonst wirkt sie pappig."],"more":"Restsüße macht Weine oft erstaunlich langlebig."},"Ikonen-Weine":{"lead":"Manche Weine sind Legenden – ihr Ruf erklärt sich aus Herkunft, Stil und Seltenheit.","points":["Bordeaux Premiers Crus (Lafite, Latour …) – Klassifikation von 1855.","Burgund: Grand-Cru-Lagen wie Romanée-Conti.","Champagne-Prestige-Cuvées und Kult-Cabernets aus Napa.","Preis ≠ Genuss: Spannende Weine gibt es in jeder Lage."],"more":"Reife, Lagerung und Provenienz bestimmen den Wert von Sammlerweinen."},"Aromarad & Verkostung":{"lead":"Das Aromarad hilft, Weinaromen zu benennen – von der groben Familie zur konkreten Note.","points":["Erst Gruppe (Frucht, Blüte, Würze, Holz), dann verfeinern.","Primäraromen = Rebsorte, Sekundär = Gärung, Tertiär = Reifung.","Schwenken und Riechen vor dem Schmecken.","Wortschatz macht Verkostung vergleichbar."],"more":"„Petrol“ beim reifen Riesling ist typisch, kein Fehler."}},"mixed":{"Grundlagen":{"lead":"Quer durch die Wein-Basics: Entstehung, Verkosten, Servieren.","points":["12 zufällige Fragen, kein Zeitdruck.","Süße, Säure, Tannin, Körper – das Grundgerüst.","Tannin trocknet, Säure macht den Mund wässrig."]},"Vertiefung":{"lead":"Rebsorten und Regionen im Schnelldurchlauf.","points":["Frankreich denkt in Herkunft, Neue Welt in Rebsorte.","Riesling = Säure, Pinot Noir = Finesse.","Klassifikationen sind Herkunfts-, nicht Geschmacksgarantien."]},"Aromarad":{"lead":"Trainiere deinen Aroma-Wortschatz.","points":["Von grob nach fein benennen.","Primär/Sekundär/Tertiär unterscheiden."]}},"mixedDefault":{"lead":"Eine bunt gemischte Übungsrunde. Kein Zeitdruck.","points":["12 zufällige Fragen aus diesem Bereich.","Süße, Säure, Tannin, Körper im Blick behalten."]}}</script>
+<script id="dl-logic">
+(function(){
+  if(window.__dlInit)return; window.__dlInit=1;
+  var L; try{ L=JSON.parse(document.getElementById('dl-lessons').textContent); }catch(e){ return; }
+  function theme(){
+    var cs=getComputedStyle(document.body);
+    var tab=document.querySelector('#tabs .tab.on')||document.body;
+    var a=getComputedStyle(tab).backgroundColor;
+    return {bg:cs.backgroundColor||'#fff', fg:cs.color||'#222', acc:(a&&a!=='rgba(0, 0, 0, 0)')?a:'#555'};
+  }
+  function soft(fg){ return fg==='rgb(255, 255, 255)'?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)'; }
+  function buildOverlay(kick,title,icon,data){
+    var t=theme();
+    var ov=document.createElement('div'); ov.className='dlov'; ov.style.background=t.bg; ov.style.color=t.fg;
+    var pts=(data.points||[]).map(function(p,i){
+      return "<div class='dlpt' style='background:"+soft(t.fg)+"'><span class='dld' style='background:"+t.acc+"'>"+(i+1)+"</span><span>"+p+"</span></div>";
+    }).join('');
+    var more=data.more?("<div class='dlmore' style='background:"+soft(t.fg)+"'><b>Gut zu wissen</b>"+data.more+"</div>"):'';
+    ov.innerHTML="<div class='dlhead'><div class='dlkick'>"+kick+"</div><div class='dltitle'>"+(icon?icon+' ':'')+title+"</div></div>"
+      +"<div class='dlscroll'><div class='dllead'>"+(data.lead||'')+"</div>"+pts+more+"</div>"
+      +"<div class='dlfoot'><button class='dlgo' style='background:"+t.acc+"'>Los geht’s →</button><button class='dlskip'>Direkt zu den Fragen</button></div>";
+    document.body.appendChild(ov);
+    var prevOv=document.body.style.overflow; document.body.style.overflow='hidden';
+    function close(){ ov.remove(); document.body.style.overflow=prevOv; }
+    ov.querySelector('.dlgo').addEventListener('click',close);
+    ov.querySelector('.dlskip').addEventListener('click',close);
+    ov.querySelector('.dlscroll').scrollTop=0;
+  }
+  var lastPick=null;
+  function cleanTrack(s){ return String(s||'').replace(/[^\p{L}0-9 .\-]/gu,'').trim(); }
+  document.addEventListener('click',function(e){
+    var cat=e.target.closest&&e.target.closest('#catList button.cat');
+    var ban=e.target.closest&&e.target.closest('#bannerSlot .banner');
+    if(!cat&&!ban)return;
+    var tabOn=document.querySelector('#tabs .tab.on');
+    var track=cleanTrack(tabOn&&tabOn.textContent);
+    if(cat){
+      var tx=cat.querySelector('.tx');
+      var nameEl=tx&&(tx.querySelector('b')||tx.firstElementChild);
+      var name=(nameEl?nameEl.textContent:(tx?tx.textContent:'')).replace(/\s*\d+\s*Fragen.*$/,'').trim();
+      var ic=cat.querySelector('.ic');
+      lastPick={kind:'cat',cat:name,track:track,icon:ic?ic.textContent.trim():'',shown:false};
+    } else {
+      lastPick={kind:'mixed',cat:null,track:track,icon:'🎲',shown:false};
+    }
+  },true);
+  var qv=document.getElementById('quizView');
+  if(!qv)return;
+  var wasHidden=qv.classList.contains('hidden');
+  function maybeShow(){
+    if(!lastPick||lastPick.shown)return;
+    var data=null,title='',kick='Lektion';
+    if(lastPick.kind==='cat'){ data=L.cats&&L.cats[lastPick.cat]; title=lastPick.cat; }
+    else { data=(L.mixed&&L.mixed[lastPick.track])||L.mixedDefault; title='Alles gemischt'; kick='Aufwärmen'; }
+    if(!data)return;
+    lastPick.shown=true;
+    buildOverlay(kick,title,lastPick.icon,data);
+  }
+  new MutationObserver(function(){ var h=qv.classList.contains('hidden'); if(wasHidden&&!h)maybeShow(); wasHidden=h; })
+    .observe(qv,{attributes:true,attributeFilter:['class']});
+})();
+</script>
 </body>
 </html>
