@@ -840,6 +840,7 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 .toolfb{flex:0 0 auto;width:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;border:1.5px solid var(--line);background:var(--card);box-shadow:var(--shadow);cursor:pointer;padding:0}
 .toolfb:hover{border-color:#7a1f3d}
 .toolfb:disabled{display:flex!important;opacity:1!important}
+#footSlot button.emojibtn{font-size:22px!important;line-height:1}
 html.qlock,html.qlock body{height:100%;overflow:hidden}
 html.qlock .wrap{height:100dvh;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0!important}
 html.qlock #quizView{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden}
@@ -877,7 +878,8 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:8px}
  function ensureFootTools(){var fs=document.getElementById('footSlot');if(!fs)return;
    if(HASA&&!fs.querySelector('.toolfb.l')){fs.insertBefore(mkTool('l','🎡','Aromarad',function(){openOv('aromaOv','aromaIf','aromarad.html');}),fs.firstChild);}
    if(!HASA&&!fs.querySelector('.toolfb.l')){var sp=document.createElement('div');sp.className='toolfb l';sp.style.visibility='hidden';sp.style.pointerEvents='none';fs.insertBefore(sp,fs.firstChild);}
-   if(!fs.querySelector('.toolfb.r')){fs.appendChild(mkTool('r','📖','Nachschlagewerk',function(){openOv('nswOv','nswIf',NURL);}));}}
+   if(!fs.querySelector('.toolfb.r')){fs.appendChild(mkTool('r','📖','Nachschlagewerk',function(){openOv('nswOv','nswIf',NURL);}));}
+   fs.querySelectorAll('button:not(.toolfb)').forEach(function(b){var t=(b.textContent||'').trim();if(t.indexOf('Wusste ich nicht')>=0){b.innerHTML='❌';b.title='Wusste ich nicht';b.setAttribute('aria-label','Wusste ich nicht');b.classList.add('emojibtn');}else if(t.indexOf('Gewusst')>=0){b.innerHTML='✅';b.title='Gewusst';b.setAttribute('aria-label','Gewusst');b.classList.add('emojibtn');}});}
  function enhanceOrder(card){var wrap=card.querySelector('.order');if(!wrap||wrap._dnd)return;wrap._dnd=true;wrap.style.touchAction='none';var dragging=null;
    function moveTo(text,target){var s=40;while(s-->0){var rows=wrap.querySelectorAll('.oitem');var cur=-1;for(var i=0;i<rows.length;i++){if(rows[i].querySelector('.lbl').textContent===text){cur=i;break;}}if(cur<0||cur===target)break;var b=rows[cur].querySelectorAll('.arrows button');if(cur>target){if(b[0]&&!b[0].disabled)b[0].click();else break;}else{if(b[1]&&!b[1].disabled)b[1].click();else break;}}}
    wrap.addEventListener('pointerdown',function(e){var row=e.target.closest('.oitem');if(!row||e.target.closest('.arrows'))return;dragging=row;row.setAttribute('data-drag','1');try{wrap.setPointerCapture(e.pointerId);}catch(_){}});
