@@ -5168,27 +5168,26 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 
 <!-- Nachschlagewerk-Einbindung -->
 <style>
-#nsw-fab{position:fixed;right:16px;bottom:16px;z-index:9998;border:none;cursor:pointer;
-  background:#7a1f3d;color:#fff;font:600 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-  padding:12px 18px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+#nsw-fab{position:fixed;right:14px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:56;border:none;cursor:pointer;
+  background:#7a1f3d;color:#fff;font:600 13.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding:0 16px;height:52px;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.28);display:flex;align-items:center;gap:7px}
 #nsw-fab:hover{filter:brightness(1.08)}
-#nsw-ov{display:none;position:fixed;inset:0;z-index:9999;background:rgba(20,16,24,.55);
-  backdrop-filter:blur(2px);flex-direction:column}
-#nsw-bar{display:flex;align-items:center;gap:12px;background:#7a1f3d;color:#fff;padding:10px 16px;
-  font:700 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+#nsw-ov{display:none;position:fixed;inset:0;z-index:9999;background:rgba(20,16,24,.55);backdrop-filter:blur(2px);flex-direction:column}
+#nsw-bar{display:flex;align-items:center;gap:12px;background:#7a1f3d;color:#fff;padding:10px 16px;font:700 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 #nsw-bar .sp{margin-left:auto}
 #nsw-x{background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font:600 13px sans-serif}
 #nsw-if{flex:1;width:100%;border:0;background:#f7f6f2}
-@media(max-width:560px){#nsw-fab{padding:11px 15px;font-size:13px}}
+@media(max-width:560px){#nsw-fab{font-size:12.5px;padding:0 13px;height:48px}}
 </style>
-<button id="nsw-fab">📖 Nachschlagewerk</button>
+<button id="nsw-fab" aria-label="Nachschlagewerk"><span>📖</span><span>Nachschlagewerk</span></button>
 <div id="nsw-ov" role="dialog" aria-label="Nachschlagewerk">
   <div id="nsw-bar"><span>📖 Nachschlagewerk</span><span class="sp"></span><button id="nsw-x">✕ Schließen</button></div>
   <iframe id="nsw-if" title="Nachschlagewerk" loading="lazy"></iframe>
 </div>
 <script>
 (function(){var u="https://mvonulmerbach-ship-it.github.io/wein-nachschlagewerk/";var b=document.getElementById("nsw-fab"),o=document.getElementById("nsw-ov"),f=document.getElementById("nsw-if");
-b.addEventListener("click",function(){if(!f.getAttribute("src"))f.setAttribute("src",u);o.style.display="flex";document.body.style.overflow="hidden";});
+function theme(){return (document.documentElement.getAttribute("data-theme")==="dark")?"dark":"light";}
+b.addEventListener("click",function(){f.setAttribute("src",u+"?theme="+theme());o.style.display="flex";document.body.style.overflow="hidden";});
 document.getElementById("nsw-x").addEventListener("click",function(){o.style.display="none";document.body.style.overflow="";});
 o.addEventListener("click",function(e){if(e.target===o){o.style.display="none";document.body.style.overflow="";}});
 })();
