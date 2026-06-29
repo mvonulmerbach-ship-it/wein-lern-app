@@ -817,12 +817,11 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 })();
 </script>
 
-<!-- Frage fixiert oben, Antwort-Bubble scrollt separat, Tools fix in Reichweite, schmaler Inhalt -->
+<!-- Frage fixiert oben, Antwort-Bubble unten, Tools in der unteren Leiste neben Weiter, volle Breite -->
 <style>
 .fab{display:none!important}#nsw-open{display:none!important}
 .wrap{padding-top:10px!important}
 #quizView,#homeView,#resultView{min-height:0!important}
-#cardSlot,#footSlot,#homeView{padding-left:48px!important;padding-right:48px!important}
 #cardSlot .card{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;margin-bottom:0!important;overflow:visible!important;max-height:none!important}
 #cardSlot .kicker{display:inline-block;margin:0 0 10px 0}
 .qpill{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:var(--shadow);margin-bottom:12px}
@@ -836,7 +835,12 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 #cardSlot .oitem{min-height:46px;cursor:grab;user-select:none}
 #cardSlot .oitem[data-drag]{cursor:grabbing;opacity:.55;border-color:#7a1f3d}
 #cardSlot .flipcard{margin-top:0}
-#footSlot button:disabled{display:none!important}
+/* untere Leiste: Tools links/rechts, Weiter in der Mitte */
+#footSlot{display:flex!important;align-items:stretch;gap:10px}
+#footSlot > button:not(.toolfb){flex:1 1 auto}
+.toolfb{flex:0 0 auto;width:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;border:1.5px solid var(--line);background:var(--card);box-shadow:var(--shadow);cursor:pointer;padding:0}
+.toolfb:hover{border-color:#7a1f3d}
+.toolfb:disabled{display:flex!important;opacity:1!important}
 /* Quiz fixiert: Seite scrollt nie; Frage bleibt oben fix, nur die Antwort-Bubble scrollt */
 html.qlock,html.qlock body{height:100%;overflow:hidden}
 html.qlock .wrap{height:100dvh;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0!important}
@@ -845,17 +849,15 @@ html.qlock #cardSlot{flex:1 1 auto;min-height:0;display:flex;overflow:hidden}
 html.qlock #cardSlot .card{display:flex;flex-direction:column;min-height:0;flex:1 1 auto;width:100%}
 html.qlock .kicker,html.qlock .qpill{flex:0 0 auto}
 html.qlock .anspill{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;justify-content:flex-end}
-html.qlock #footSlot{flex:0 0 auto;margin-top:6px}
-.toolfix{position:fixed;top:78%;transform:translateY(-50%);z-index:300;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;border:1.5px solid var(--line);background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}
-.toolfix:hover{border-color:#7a1f3d}.toolfix.l{left:5px}.toolfix.r{right:5px}
+html.qlock #footSlot{flex:0 0 auto;margin-top:8px}
 .ovl{display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,12,20,.55);backdrop-filter:blur(2px);flex-direction:column}
 .ovlbar{display:flex;align-items:center;gap:12px;background:#7a1f3d;color:#fff;padding:10px 16px;font:700 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 .ovlbar .sp{margin-left:auto}
 .ovlx{background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font:600 13px sans-serif}
-.ovl iframe{flex:1;width:100%;border:0;background:#f7f6f2}
+.ovl iframe{flex:1;width:100%;border:0;background:#f7f6f2;overflow:auto;-webkit-overflow-scrolling:touch}
 </style>
-<div class="ovl" id="nswOv"><div class="ovlbar"><span>📖 Nachschlagewerk</span><span class="sp"></span><button class="ovlx" data-c="nswOv">✕ Schließen</button></div><iframe id="nswIf" loading="lazy"></iframe></div>
-<div class="ovl" id="aromaOv"><div class="ovlbar"><span>🎡 Aromarad</span><span class="sp"></span><button class="ovlx" data-c="aromaOv">✕ Schließen</button></div><iframe id="aromaIf" loading="lazy"></iframe></div>
+<div class="ovl" id="nswOv"><div class="ovlbar"><span>📖 Nachschlagewerk</span><span class="sp"></span><button class="ovlx" data-c="nswOv">✕ Schließen</button></div><iframe id="nswIf" loading="lazy" scrolling="yes"></iframe></div>
+<div class="ovl" id="aromaOv"><div class="ovlbar"><span>🎡 Aromarad</span><span class="sp"></span><button class="ovlx" data-c="aromaOv">✕ Schließen</button></div><iframe id="aromaIf" loading="lazy" scrolling="yes"></iframe></div>
 <script>
 (function(){
  var NURL="https://mvonulmerbach-ship-it.github.io/wein-nachschlagewerk/"; var HASA=true;
@@ -864,8 +866,10 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:6px}
  function close(o){o.style.display='none';document.body.style.overflow='';}
  document.querySelectorAll('.ovlx').forEach(function(b){b.addEventListener('click',function(){close(document.getElementById(b.dataset.c));});});
  document.querySelectorAll('.ovl').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)close(o);});});
- if(HASA){var aL=document.createElement('button');aL.className='toolfix l';aL.innerHTML='🎡';aL.title='Aromarad';aL.setAttribute('aria-label','Aromarad');aL.addEventListener('click',function(){openOv('aromaOv','aromaIf','aromarad.html');});document.body.appendChild(aL);}
- var nR=document.createElement('button');nR.className='toolfix r';nR.innerHTML='📖';nR.title='Nachschlagewerk';nR.setAttribute('aria-label','Nachschlagewerk');nR.addEventListener('click',function(){openOv('nswOv','nswIf',NURL);});document.body.appendChild(nR);
+ function mkTool(side,emoji,title,fn){var b=document.createElement('button');b.className='toolfb '+side;b.type='button';b.innerHTML=emoji;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn();});return b;}
+ function ensureFootTools(){var fs=document.getElementById('footSlot');if(!fs)return;
+   if(HASA&&!fs.querySelector('.toolfb.l')){fs.insertBefore(mkTool('l','🎡','Aromarad',function(){openOv('aromaOv','aromaIf','aromarad.html');}),fs.firstChild);}
+   if(!fs.querySelector('.toolfb.r')){fs.appendChild(mkTool('r','📖','Nachschlagewerk',function(){openOv('nswOv','nswIf',NURL);}));}}
  function enhanceOrder(card){var wrap=card.querySelector('.order');if(!wrap||wrap._dnd)return;wrap._dnd=true;wrap.style.touchAction='none';var dragging=null;
    function moveTo(text,target){var s=40;while(s-->0){var rows=wrap.querySelectorAll('.oitem');var cur=-1;for(var i=0;i<rows.length;i++){if(rows[i].querySelector('.lbl').textContent===text){cur=i;break;}}if(cur<0||cur===target)break;var b=rows[cur].querySelectorAll('.arrows button');if(cur>target){if(b[0]&&!b[0].disabled)b[0].click();else break;}else{if(b[1]&&!b[1].disabled)b[1].click();else break;}}}
    wrap.addEventListener('pointerdown',function(e){var row=e.target.closest('.oitem');if(!row||e.target.closest('.arrows'))return;dragging=row;row.setAttribute('data-drag','1');try{wrap.setPointerCapture(e.pointerId);}catch(_){}});
@@ -883,6 +887,8 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:6px}
  function setLock(){var qv=document.getElementById('quizView');var on=qv&&!qv.classList.contains('hidden');document.documentElement.classList.toggle('qlock',!!on);}
  var slot=document.getElementById('cardSlot');
  if(slot){var mo=new MutationObserver(function(){pillify(slot.querySelector('.card'));});mo.observe(slot,{childList:true,subtree:true});pillify(slot.querySelector('.card'));}
+ var fs=document.getElementById('footSlot');
+ if(fs){var mf=new MutationObserver(ensureFootTools);mf.observe(fs,{childList:true});ensureFootTools();}
  var qv=document.getElementById('quizView');
  if(qv){var mq=new MutationObserver(setLock);mq.observe(qv,{attributes:true,attributeFilter:['class']});}
  setLock();
