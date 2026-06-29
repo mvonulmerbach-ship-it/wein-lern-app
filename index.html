@@ -835,7 +835,7 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 #cardSlot .oitem{min-height:46px;cursor:grab;user-select:none}
 #cardSlot .oitem[data-drag]{cursor:grabbing;opacity:.55;border-color:#7a1f3d}
 #cardSlot .flipcard{margin-top:0}
-#footSlot{display:flex!important;align-items:stretch;gap:10px}
+#footSlot{display:flex!important;align-items:stretch;gap:6px}
 #footSlot > button:not(.toolfb){flex:1 1 auto}
 .toolfb{flex:0 0 auto;width:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;border:1.5px solid var(--line);background:var(--card);box-shadow:var(--shadow);cursor:pointer;padding:0}
 .toolfb:hover{border-color:#7a1f3d}
@@ -876,6 +876,7 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:8px}
  function mkTool(side,emoji,title,fn){var b=document.createElement('button');b.className='toolfb '+side;b.type='button';b.innerHTML=emoji;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn();});return b;}
  function ensureFootTools(){var fs=document.getElementById('footSlot');if(!fs)return;
    if(HASA&&!fs.querySelector('.toolfb.l')){fs.insertBefore(mkTool('l','🎡','Aromarad',function(){openOv('aromaOv','aromaIf','aromarad.html');}),fs.firstChild);}
+   if(!HASA&&!fs.querySelector('.toolfb.l')){var sp=document.createElement('div');sp.className='toolfb l';sp.style.visibility='hidden';sp.style.pointerEvents='none';fs.insertBefore(sp,fs.firstChild);}
    if(!fs.querySelector('.toolfb.r')){fs.appendChild(mkTool('r','📖','Nachschlagewerk',function(){openOv('nswOv','nswIf',NURL);}));}}
  function enhanceOrder(card){var wrap=card.querySelector('.order');if(!wrap||wrap._dnd)return;wrap._dnd=true;wrap.style.touchAction='none';var dragging=null;
    function moveTo(text,target){var s=40;while(s-->0){var rows=wrap.querySelectorAll('.oitem');var cur=-1;for(var i=0;i<rows.length;i++){if(rows[i].querySelector('.lbl').textContent===text){cur=i;break;}}if(cur<0||cur===target)break;var b=rows[cur].querySelectorAll('.arrows button');if(cur>target){if(b[0]&&!b[0].disabled)b[0].click();else break;}else{if(b[1]&&!b[1].disabled)b[1].click();else break;}}}
