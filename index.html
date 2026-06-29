@@ -817,7 +817,7 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 })();
 </script>
 
-<!-- Frage fixiert oben, Antwort-Bubble unten, Tools in der unteren Leiste neben Weiter, volle Breite -->
+<!-- Layout: Frage fix oben, Antwort unten, Tools in unterer Leiste. Android-Zurück + in-App-Dialog -->
 <style>
 .fab{display:none!important}#nsw-open{display:none!important}
 .wrap{padding-top:10px!important}
@@ -835,13 +835,11 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 #cardSlot .oitem{min-height:46px;cursor:grab;user-select:none}
 #cardSlot .oitem[data-drag]{cursor:grabbing;opacity:.55;border-color:#7a1f3d}
 #cardSlot .flipcard{margin-top:0}
-/* untere Leiste: Tools links/rechts, Weiter in der Mitte */
 #footSlot{display:flex!important;align-items:stretch;gap:10px}
 #footSlot > button:not(.toolfb){flex:1 1 auto}
 .toolfb{flex:0 0 auto;width:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;border:1.5px solid var(--line);background:var(--card);box-shadow:var(--shadow);cursor:pointer;padding:0}
 .toolfb:hover{border-color:#7a1f3d}
 .toolfb:disabled{display:flex!important;opacity:1!important}
-/* Quiz fixiert: Seite scrollt nie; Frage bleibt oben fix, nur die Antwort-Bubble scrollt */
 html.qlock,html.qlock body{height:100%;overflow:hidden}
 html.qlock .wrap{height:100dvh;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0!important}
 html.qlock #quizView{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden}
@@ -855,17 +853,26 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:8px}
 .ovlbar .sp{margin-left:auto}
 .ovlx{background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font:600 13px sans-serif}
 .ovl iframe{flex:1;width:100%;border:0;background:#f7f6f2;overflow:auto;-webkit-overflow-scrolling:touch}
+.cwmodal{display:none;position:fixed;inset:0;z-index:10001;background:rgba(15,12,20,.55);backdrop-filter:blur(2px);align-items:center;justify-content:center;padding:24px}
+.cwmodal .box{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.35);max-width:340px;width:100%;padding:22px;text-align:center;color:var(--ink)}
+.cwmodal .box h4{margin:0 0 8px;font-size:18px}
+.cwmodal .box p{margin:0 0 18px;opacity:.75;font-size:14px;line-height:1.4}
+.cwmodal .row{display:flex;gap:10px}
+.cwmodal .row button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--line);font:600 14px -apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer}
+.cwmodal .row .ok{background:#7a1f3d;color:#fff;border-color:#7a1f3d}
+.cwmodal .row .cancel{background:transparent;color:var(--ink)}
 </style>
 <div class="ovl" id="nswOv"><div class="ovlbar"><span>📖 Nachschlagewerk</span><span class="sp"></span><button class="ovlx" data-c="nswOv">✕ Schließen</button></div><iframe id="nswIf" loading="lazy" scrolling="yes"></iframe></div>
 <div class="ovl" id="aromaOv"><div class="ovlbar"><span>🎡 Aromarad</span><span class="sp"></span><button class="ovlx" data-c="aromaOv">✕ Schließen</button></div><iframe id="aromaIf" loading="lazy" scrolling="yes"></iframe></div>
+<div class="cwmodal" id="cwQuit"><div class="box"><h4>Quiz beenden?</h4><p>Dein aktueller Fortschritt in dieser Runde geht verloren.</p><div class="row"><button class="cancel" id="cwQuitNo">Abbrechen</button><button class="ok" id="cwQuitYes">Beenden</button></div></div></div>
 <script>
 (function(){
  var NURL="https://mvonulmerbach-ship-it.github.io/wein-nachschlagewerk/"; var HASA=true;
  function theme(){return document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';}
  function openOv(id,fid,url){var o=document.getElementById(id),f=document.getElementById(fid);f.setAttribute('src',url+'?theme='+theme());o.style.display='flex';document.body.style.overflow='hidden';}
- function close(o){o.style.display='none';document.body.style.overflow='';}
- document.querySelectorAll('.ovlx').forEach(function(b){b.addEventListener('click',function(){close(document.getElementById(b.dataset.c));});});
- document.querySelectorAll('.ovl').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)close(o);});});
+ function closeOv(o){o.style.display='none';document.body.style.overflow='';}
+ document.querySelectorAll('.ovlx').forEach(function(b){b.addEventListener('click',function(){closeOv(document.getElementById(b.dataset.c));});});
+ document.querySelectorAll('.ovl').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)closeOv(o);});});
  function mkTool(side,emoji,title,fn){var b=document.createElement('button');b.className='toolfb '+side;b.type='button';b.innerHTML=emoji;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn();});return b;}
  function ensureFootTools(){var fs=document.getElementById('footSlot');if(!fs)return;
    if(HASA&&!fs.querySelector('.toolfb.l')){fs.insertBefore(mkTool('l','🎡','Aromarad',function(){openOv('aromaOv','aromaIf','aromarad.html');}),fs.firstChild);}
@@ -892,6 +899,30 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:8px}
  var qv=document.getElementById('quizView');
  if(qv){var mq=new MutationObserver(setLock);mq.observe(qv,{attributes:true,attributeFilter:['class']});}
  setLock();
+ /* ---- in-App Beenden-Dialog statt System-confirm ---- */
+ var quitM=document.getElementById('cwQuit');
+ function showQuit(){quitM.style.display='flex';}
+ function hideQuit(){quitM.style.display='none';}
+ document.getElementById('cwQuitNo').addEventListener('click',hideQuit);
+ document.getElementById('cwQuitYes').addEventListener('click',function(){hideQuit();if(typeof renderHome==='function')renderHome();});
+ quitM.addEventListener('click',function(e){if(e.target===quitM)hideQuit();});
+ var qb=document.getElementById('quizBack'); if(qb){qb.onclick=function(){showQuit();};}
+ /* ---- Android-Zurück-Button: eine Stufe zurück statt App verlassen ---- */
+ function modalOpen(){return quitM.style.display==='flex';}
+ function ovlOpen(){var a=false;document.querySelectorAll('.ovl').forEach(function(o){if(o.style.display==='flex')a=true;});return a;}
+ function closeOvls(){document.querySelectorAll('.ovl').forEach(function(o){o.style.display='none';});document.body.style.overflow='';}
+ function inQuiz(){var hv=document.getElementById('homeView');return hv&&hv.classList.contains('hidden');}
+ function closeTop(){
+   if(modalOpen()){hideQuit();return true;}
+   if(ovlOpen()){closeOvls();return true;}            /* Nachschlagewerk/Aromarad zu -> zurück zur Frage */
+   if(inQuiz()){if(typeof renderHome==='function')renderHome();return true;} /* Quiz/Ergebnis -> Start */
+   return false;
+ }
+ try{history.pushState({cw:'guard'},'');}catch(_){}
+ window.addEventListener('popstate',function(){
+   if(closeTop()){ try{history.pushState({cw:'guard'},'');}catch(_){ } }
+   else { try{history.back();}catch(_){ } }
+ });
 })();
 </script>
 
