@@ -817,25 +817,32 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 })();
 </script>
 
-<!-- 3-Pill, Emoji-Tools (links/rechts), Scroll-Fix, Drag&Drop -->
+<!-- Typ-Label oben, 2 Pills (keine leeren), feste Tool-Buttons (etwas tiefer), flache TF, Quiz fixiert -->
 <style>
 .fab{display:none!important}#nsw-open{display:none!important}
-.wrap{padding-top:12px!important}
+.wrap{padding-top:10px!important}
 #quizView,#homeView,#resultView{min-height:0!important}
 #cardSlot .card{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;margin-bottom:0!important;overflow:visible!important;max-height:none!important}
-.qpill{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow)}
-.qpill .qhead{margin:0 0 8px}.qpill .qtext{margin:0}
-.anspill{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow)}
-.toolpill{display:flex;gap:14px;justify-content:center;align-items:center;margin:12px 2px}
-.toolpill.split{justify-content:space-between}
-.toolbtn{width:46px;height:46px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:20px;
-  border:1.5px solid var(--line);background:var(--card);cursor:pointer;transition:.15s;padding:0}
-.toolbtn:hover{border-color:#7a1f3d;transform:translateY(-1px)}
-#cardSlot .opt{min-height:54px}
-#cardSlot .tf button{min-height:54px;flex:1}
-#cardSlot .mitem{min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center}
-#cardSlot .oitem{min-height:52px;cursor:grab;user-select:none}
+#cardSlot .kicker{display:inline-block;margin:0 0 12px 0}
+.qpill{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:var(--shadow);margin-bottom:12px}
+.qpill .qtext{margin:0}
+.anspill{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:var(--shadow)}
+#cardSlot .opt{min-height:48px}
+#cardSlot .tf{gap:10px}
+#cardSlot .tf button{min-height:0!important;flex:1;padding:8px 10px!important;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px}
+#cardSlot .tf button .e{font-size:17px;line-height:1}
+#cardSlot .mitem{min-height:46px;display:flex;align-items:center;justify-content:center;text-align:center}
+#cardSlot .oitem{min-height:46px;cursor:grab;user-select:none}
 #cardSlot .oitem[data-drag]{cursor:grabbing;opacity:.55;border-color:#7a1f3d}
+#cardSlot .flipcard{margin-top:0}
+#footSlot button:disabled{display:none!important}
+html.qlock,html.qlock body{height:100%;overflow:hidden}
+html.qlock .wrap{height:100dvh;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0!important}
+html.qlock #quizView{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+html.qlock #cardSlot{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+html.qlock #footSlot{flex:0 0 auto;margin-top:6px}
+.toolfix{position:fixed;top:62%;transform:translateY(-50%);z-index:300;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:1.5px solid var(--line);background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}
+.toolfix:hover{border-color:#7a1f3d}.toolfix.l{left:8px}.toolfix.r{right:8px}
 .ovl{display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,12,20,.55);backdrop-filter:blur(2px);flex-direction:column}
 .ovlbar{display:flex;align-items:center;gap:12px;background:#7a1f3d;color:#fff;padding:10px 16px;font:700 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 .ovlbar .sp{margin-left:auto}
@@ -852,25 +859,28 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
  function close(o){o.style.display='none';document.body.style.overflow='';}
  document.querySelectorAll('.ovlx').forEach(function(b){b.addEventListener('click',function(){close(document.getElementById(b.dataset.c));});});
  document.querySelectorAll('.ovl').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)close(o);});});
- function makeRow(home){var row=document.createElement('div');row.className='toolpill'+(HASA?' split':'')+(home?' home':'');
-   if(HASA){var a=document.createElement('button');a.className='toolbtn';a.innerHTML='🎡';a.setAttribute('aria-label','Aromarad');a.title='Aromarad';a.addEventListener('click',function(){openOv('aromaOv','aromaIf','aromarad.html');});row.appendChild(a);}
-   var n=document.createElement('button');n.className='toolbtn';n.innerHTML='📖';n.setAttribute('aria-label','Nachschlagewerk');n.title='Nachschlagewerk';n.addEventListener('click',function(){openOv('nswOv','nswIf',NURL);});row.appendChild(n);return row;}
+ if(HASA){var aL=document.createElement('button');aL.className='toolfix l';aL.innerHTML='🎡';aL.title='Aromarad';aL.setAttribute('aria-label','Aromarad');aL.addEventListener('click',function(){openOv('aromaOv','aromaIf','aromarad.html');});document.body.appendChild(aL);}
+ var nR=document.createElement('button');nR.className='toolfix r';nR.innerHTML='📖';nR.title='Nachschlagewerk';nR.setAttribute('aria-label','Nachschlagewerk');nR.addEventListener('click',function(){openOv('nswOv','nswIf',NURL);});document.body.appendChild(nR);
  function enhanceOrder(card){var wrap=card.querySelector('.order');if(!wrap||wrap._dnd)return;wrap._dnd=true;wrap.style.touchAction='none';var dragging=null;
    function moveTo(text,target){var s=40;while(s-->0){var rows=wrap.querySelectorAll('.oitem');var cur=-1;for(var i=0;i<rows.length;i++){if(rows[i].querySelector('.lbl').textContent===text){cur=i;break;}}if(cur<0||cur===target)break;var b=rows[cur].querySelectorAll('.arrows button');if(cur>target){if(b[0]&&!b[0].disabled)b[0].click();else break;}else{if(b[1]&&!b[1].disabled)b[1].click();else break;}}}
    wrap.addEventListener('pointerdown',function(e){var row=e.target.closest('.oitem');if(!row||e.target.closest('.arrows'))return;dragging=row;row.setAttribute('data-drag','1');try{wrap.setPointerCapture(e.pointerId);}catch(_){}});
    wrap.addEventListener('pointerup',function(e){if(!dragging)return;var text=dragging.querySelector('.lbl').textContent;var rows=Array.prototype.slice.call(wrap.querySelectorAll('.oitem'));var target=rows.length-1;for(var i=0;i<rows.length;i++){var r=rows[i].getBoundingClientRect();if(e.clientY<r.top+r.height/2){target=i;break;}}dragging.removeAttribute('data-drag');dragging=null;moveTo(text,target);});
    wrap.addEventListener('pointercancel',function(){if(dragging){dragging.removeAttribute('data-drag');dragging=null;}});}
  function pillify(card){if(!card||card._pills)return;card._pills=true;
-   var kids=Array.prototype.slice.call(card.children);
+   var kind=card.querySelector('.kicker');
    var qpill=document.createElement('div');qpill.className='qpill';var anspill=document.createElement('div');anspill.className='anspill';
-   kids.forEach(function(ch){if(ch.classList&&(ch.classList.contains('qhead')||ch.classList.contains('qtext')))qpill.appendChild(ch);else anspill.appendChild(ch);});
-   card.appendChild(qpill);card.appendChild(makeRow(false));card.appendChild(anspill);enhanceOrder(card);
-   try{window.scrollTo(0,0);var se=document.scrollingElement;if(se)se.scrollTop=0;}catch(_){}}
- function injHome(){var hv=document.getElementById('homeView');if(!hv||hv.classList.contains('hidden'))return;if(hv.querySelector('.toolpill'))return;hv.insertBefore(makeRow(true),hv.firstChild);}
+   Array.prototype.slice.call(card.children).forEach(function(ch){if(ch===kind)return;if(ch.classList&&ch.classList.contains('qtext'))qpill.appendChild(ch);else anspill.appendChild(ch);});
+   if(kind)card.appendChild(kind);
+   if(qpill.children.length)card.appendChild(qpill);
+   if(anspill.children.length)card.appendChild(anspill);
+   enhanceOrder(card);
+   var cs=document.getElementById('cardSlot');if(cs)cs.scrollTop=0;try{window.scrollTo(0,0);}catch(_){}}
+ function setLock(){var qv=document.getElementById('quizView');var on=qv&&!qv.classList.contains('hidden');document.documentElement.classList.toggle('qlock',!!on);}
  var slot=document.getElementById('cardSlot');
  if(slot){var mo=new MutationObserver(function(){pillify(slot.querySelector('.card'));});mo.observe(slot,{childList:true,subtree:true});pillify(slot.querySelector('.card'));}
- var hv=document.getElementById('homeView');
- if(hv){var mh=new MutationObserver(function(){injHome();});mh.observe(hv,{childList:true,attributes:true,attributeFilter:['class']});injHome();}
+ var qv=document.getElementById('quizView');
+ if(qv){var mq=new MutationObserver(setLock);mq.observe(qv,{attributes:true,attributeFilter:['class']});}
+ setLock();
 })();
 </script>
 
