@@ -817,13 +817,14 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 })();
 </script>
 
-<!-- Typ-Label oben, 2 Pills (keine leeren), feste Tool-Buttons (etwas tiefer), flache TF, Quiz fixiert -->
+<!-- Frage fixiert oben, Antwort-Bubble scrollt separat, Tools fix in Reichweite, schmaler Inhalt -->
 <style>
 .fab{display:none!important}#nsw-open{display:none!important}
 .wrap{padding-top:10px!important}
 #quizView,#homeView,#resultView{min-height:0!important}
+#cardSlot,#footSlot,#homeView{padding-left:48px!important;padding-right:48px!important}
 #cardSlot .card{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;margin-bottom:0!important;overflow:visible!important;max-height:none!important}
-#cardSlot .kicker{display:inline-block;margin:0 0 12px 0}
+#cardSlot .kicker{display:inline-block;margin:0 0 10px 0}
 .qpill{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:var(--shadow);margin-bottom:12px}
 .qpill .qtext{margin:0}
 .anspill{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:var(--shadow)}
@@ -836,17 +837,17 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 #cardSlot .oitem[data-drag]{cursor:grabbing;opacity:.55;border-color:#7a1f3d}
 #cardSlot .flipcard{margin-top:0}
 #footSlot button:disabled{display:none!important}
+/* Quiz fixiert: Seite scrollt nie; Frage bleibt oben fix, nur die Antwort-Bubble scrollt */
 html.qlock,html.qlock body{height:100%;overflow:hidden}
 html.qlock .wrap{height:100dvh;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0!important}
 html.qlock #quizView{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden}
-html.qlock #cardSlot{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+html.qlock #cardSlot{flex:1 1 auto;min-height:0;display:flex;overflow:hidden}
+html.qlock #cardSlot .card{display:flex;flex-direction:column;min-height:0;flex:1 1 auto;width:100%}
+html.qlock .kicker,html.qlock .qpill{flex:0 0 auto}
+html.qlock .anspill{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;justify-content:flex-end}
 html.qlock #footSlot{flex:0 0 auto;margin-top:6px}
-.toolfix{position:fixed;top:81%;transform:translateY(-50%);z-index:300;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:1.5px solid var(--line);background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}
-.toolfix:hover{border-color:#7a1f3d}
-#cardSlot{padding-left:48px!important;padding-right:48px!important}
-#footSlot{padding-left:48px!important;padding-right:48px!important}
-#homeView{padding-left:48px!important;padding-right:48px!important}
-.toolfix.l{left:5px}.toolfix.r{right:5px}
+.toolfix{position:fixed;top:78%;transform:translateY(-50%);z-index:300;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;border:1.5px solid var(--line);background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}
+.toolfix:hover{border-color:#7a1f3d}.toolfix.l{left:5px}.toolfix.r{right:5px}
 .ovl{display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,12,20,.55);backdrop-filter:blur(2px);flex-direction:column}
 .ovlbar{display:flex;align-items:center;gap:12px;background:#7a1f3d;color:#fff;padding:10px 16px;font:700 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 .ovlbar .sp{margin-left:auto}
@@ -878,7 +879,7 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:6px}
    if(qpill.children.length)card.appendChild(qpill);
    if(anspill.children.length)card.appendChild(anspill);
    enhanceOrder(card);
-   var cs=document.getElementById('cardSlot');if(cs)cs.scrollTop=0;try{window.scrollTo(0,0);}catch(_){}}
+   var cs=document.getElementById('cardSlot');if(cs)cs.scrollTop=0;var ap=card.querySelector('.anspill');if(ap)ap.scrollTop=0;try{window.scrollTo(0,0);}catch(_){}}
  function setLock(){var qv=document.getElementById('quizView');var on=qv&&!qv.classList.contains('hidden');document.documentElement.classList.toggle('qlock',!!on);}
  var slot=document.getElementById('cardSlot');
  if(slot){var mo=new MutationObserver(function(){pillify(slot.querySelector('.card'));});mo.observe(slot,{childList:true,subtree:true});pillify(slot.querySelector('.card'));}
