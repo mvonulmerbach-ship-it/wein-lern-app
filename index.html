@@ -669,7 +669,7 @@ function renderFlip(q,card){
 function renderRecall(q,card){
   if(q.hint) card.insertBefore(el('div','hintbox','💡 Tipp: '+q.hint),$('cardFb'));
   function show(){
-    var mb=el('div','modelbox','<b>Musterantwort:</b><br>'+q.model); card.insertBefore(mb,$('cardFb'));
+    var mb=el('div','modelbox','<b>Musterantwort:</b><br>'+q.model); var _fb=$('cardFb');_fb.parentNode.insertBefore(mb,_fb);
     try{mb.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}
     setFoot([{label:'❌ Wusste ich nicht',cls:'ghost',fn:function(){reveal(false,q,{self:true,body:q.model});}},
              {label:'✅ Gewusst',cls:'good',fn:function(){reveal(true,q,{self:true,body:q.model});}}]);
