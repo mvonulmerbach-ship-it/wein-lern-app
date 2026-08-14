@@ -729,7 +729,7 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 
 <style id="dl-style">
 /* --- Einhand-Layout: Quiz-Inhalt nach unten --- */
-.wrap{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;box-sizing:border-box}
+.wrap{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;min-height:var(--appvh,100dvh);box-sizing:border-box}
 .wrap>header{flex:0 0 auto}
 #quizView:not(.hidden){flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
 #quizView #cardSlot{flex:1 1 auto;display:flex;flex-direction:column;overflow:auto;min-height:0}
@@ -842,7 +842,7 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 .toolfb:disabled{display:flex!important;opacity:1!important}
 #footSlot button.emojibtn{font-size:22px!important;line-height:1}
 html.qlock,html.qlock body{height:100%;overflow:hidden}
-html.qlock .wrap{height:100dvh;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0!important}
+html.qlock .wrap{height:100vh;height:100dvh;height:var(--appvh,100dvh);display:flex;flex-direction:column;overflow:hidden;padding-bottom:0!important}
 html.qlock #quizView{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden}
 html.qlock #cardSlot{flex:1 1 auto;min-height:0;display:flex;overflow:hidden}
 html.qlock #cardSlot .card{display:flex;flex-direction:column;min-height:0;flex:1 1 auto;width:100%}
@@ -929,5 +929,18 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:8px}
 })();
 </script>
 
+<script id="appvh-fix">
+/* Setzt --appvh auf die tatsaechlich sichtbare Viewport-Hoehe.
+   Noetig, weil 100vh auf Android die *groesste* Viewport-Hoehe meint
+   (Adressleiste ausgeblendet) und der untere Rand sonst abgeschnitten wird. */
+(function(){
+  var d = document.documentElement;
+  function set(){ d.style.setProperty('--appvh', window.innerHeight + 'px'); }
+  set();
+  window.addEventListener('resize', set);
+  window.addEventListener('orientationchange', function(){ setTimeout(set, 250); });
+  window.addEventListener('pageshow', set);
+})();
+</script>
 </body>
 </html>
