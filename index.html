@@ -12,6 +12,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Vino">
 <title>Vino – Wein lernen</title>
+<script>
+/* Hell/Dunkel ohne Aufblitzen: gespeicherte Wahl (store.theme) vor dem CSS anwenden. */
+(function(){var K="wein_lern_v3",w="system";try{var s=JSON.parse(localStorage.getItem(K)||"{}");if(s&&s.theme)w=s.theme;}catch(e){}
+var d=w==="dark"||(w!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);
+document.documentElement.setAttribute("data-theme",d?"dark":"light");})();
+</script>
 <style>
 :root{
   color-scheme: light;
@@ -210,6 +216,21 @@ header{position:sticky;top:0;z-index:30;background:var(--bg);
 .dots{display:inline-flex;gap:3px;vertical-align:middle;margin-left:2px}
 .dots i{width:6px;height:6px;border-radius:50%;background:var(--line);display:inline-block}
 .dots i.on{background:var(--gold)}
+/* 02.10.2026 (Mini-App-Ueberarbeitung S2): Tippflaechen >= 44 px (Q-5),
+   Schrift >= 12 px, Kontrast im Dunkelmodus (B4), Hinweis statt Schein-Knopf (AK-07) */
+.themebtn{min-width:44px;min-height:44px;display:inline-grid;place-items:center;padding:6px 10px}
+.tab{min-height:44px}
+.back{min-height:44px;padding:6px 12px}
+.kicker{font-size:12px}
+.oitem .arrows{flex-direction:row;gap:4px}
+.oitem .arrows button{min-width:44px;min-height:44px;font-size:15px}
+[data-theme="dark"] .kicker.t-flip,[data-theme="dark"] .kicker.t-recall{color:#1c1b18}
+[data-theme="dark"] .opt.correct .k,[data-theme="dark"] .opt.wrong .k{color:#121310}
+.foothint{flex:1 1 auto;display:flex;align-items:center;justify-content:center;text-align:center;
+  min-height:50px;font-size:15px;font-weight:700;color:var(--muted);padding:0 6px;
+  background:var(--bg);border-radius:14px}
+.ovlx,.cwmodal .row button{min-height:44px}
+.ovlbar .ovlx{background:rgba(0,0,0,.22)}  /* weisse Schrift >= 4,5:1 auch auf hellem Kopf (philo 3,82:1) */
 </style>
 </head>
 <body>
@@ -293,13 +314,24 @@ function refreshHeader(){
   $('streakStat').textContent = "🔥 "+store.sc;
   $('xpStat').textContent = "⭐ "+store.xp;
 }
+/* Hell/Dunkel dreistufig (02.10.2026, Q-3/Q-4): store.theme = "system" | "light" | "dark",
+   Standard "system" (folgt prefers-color-scheme). Eine frueher gespeicherte Wahl bleibt. */
+const THEME_FOLGE=['system','light','dark'];
+const THEME_SYMBOL={system:'◐',light:'☀️',dark:'🌙'};
+const THEME_NAME={system:'System',light:'Hell',dark:'Dunkel'};
+const dunkelAbfrage=matchMedia('(prefers-color-scheme: dark)');
+if(THEME_FOLGE.indexOf(store.theme)<0) store.theme='system';
+function shownTheme(){return document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';}
 function applyTheme(){
-  if(store.theme==='dark'){document.documentElement.setAttribute('data-theme','dark');$('themeBtn').textContent='☀️';}
-  else{document.documentElement.removeAttribute('data-theme');$('themeBtn').textContent='🌙';}
+  var dunkel=store.theme==='dark'||(store.theme==='system'&&dunkelAbfrage.matches);
+  document.documentElement.setAttribute('data-theme',dunkel?'dark':'light');
+  var b=$('themeBtn'); b.textContent=THEME_SYMBOL[store.theme];
+  b.setAttribute('aria-label','Erscheinungsbild: '+THEME_NAME[store.theme]); b.title='Erscheinungsbild: '+THEME_NAME[store.theme];
+  var v=shownTheme();
+  document.querySelectorAll('iframe').forEach(function(fr){ if(fr.contentWindow){try{fr.contentWindow.postMessage({type:'aromarad-theme',value:v},'*');}catch(e){}} });
 }
-$('themeBtn').onclick=function(){store.theme=(store.theme==='dark')?'light':'dark';save();applyTheme();
-  var v=store.theme==='dark'?'dark':'light';
-  document.querySelectorAll('iframe').forEach(function(fr){ if(fr.contentWindow){try{fr.contentWindow.postMessage({type:'aromarad-theme',value:v},'*');}catch(e){}} });};
+$('themeBtn').onclick=function(){store.theme=THEME_FOLGE[(THEME_FOLGE.indexOf(store.theme)+1)%THEME_FOLGE.length];save();applyTheme();};
+dunkelAbfrage.addEventListener('change',applyTheme);
 
 /* ---------- streak ---------- */
 function bumpStreak(){
@@ -310,14 +342,20 @@ function bumpStreak(){
 
 /* ---------- home ---------- */
 let curTrack = CFG.tracks[0].id;
-function trackColor(id){var t=CFG.tracks.find(function(x){return x.id===id;});return t?t.color:'var(--brand)';}
+/* 02.10.2026 (S2, B4): Weisse Schrift auf hellem Akzent (Gold, Hellbraun) erreichte nur
+   2,6-3,6:1. Farben, auf denen weisse Schrift steht, werden so weit abgedunkelt, bis 4,5:1 erreicht ist. */
+function hexRgb(h){var m=/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(h||'').trim());if(!m)return null;h=m[1];if(h.length===3)h=h.replace(/./g,'$&$&');return [0,2,4].map(function(i){return parseInt(h.substr(i,2),16);});}
+function kontrastZuWeiss(rgb){var l=rgb.map(function(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});return 1.05/(0.2126*l[0]+0.7152*l[1]+0.0722*l[2]+0.05);}
+function fuerWeisseSchrift(farbe){var rgb=hexRgb(farbe);if(!rgb)return farbe;var n=0;while(kontrastZuWeiss(rgb)<4.6&&n++<40){rgb=rgb.map(function(v){return Math.round(v*0.95);});}return '#'+rgb.map(function(v){return ('0'+v.toString(16)).slice(-2);}).join('');}
+function akzentAnpassen(){var r=document.documentElement,a=getComputedStyle(r).getPropertyValue('--accent').trim(),neu=fuerWeisseSchrift(a);if(neu!==a)r.style.setProperty('--accent',neu);}
+function trackColor(id){var t=CFG.tracks.find(function(x){return x.id===id;});return t?fuerWeisseSchrift(t.color):'var(--brand)';}
 function catIcon(cat){return (CFG.catIcons&&CFG.catIcons[cat])|| '📖';}
 
 function renderTabs(){
   var w=$('tabs'); w.innerHTML='';
   CFG.tracks.forEach(function(t){
     var b=el('button','tab'+(t.id===curTrack?' on':''), t.emoji+' '+t.label);
-    if(t.id===curTrack){b.style.background=t.color;}
+    if(t.id===curTrack){b.style.background=trackColor(t.id);}
     b.onclick=function(){curTrack=t.id;renderHome();};
     w.appendChild(b);
   });
@@ -353,7 +391,7 @@ function renderHome(){
   if(tObj.wheel){
     list.appendChild(el('div','sectit','Aromarad — jederzeit zum Nachschlagen'));
     var fr=el('div','wheelFrame');
-    var th=(store.theme==='dark')?'dark':'light';
+    var th=shownTheme();
     var ifr=document.createElement('iframe');
     ifr.id='aromaFrame'; ifr.title='Aromarad';
     ifr.setAttribute('src',(CFG.wheelSrc||'aromarad.html')+'?theme='+th);
@@ -387,6 +425,7 @@ $('quizBack').onclick=function(){ if(confirm('Quiz beenden und zurück?')) rende
 function setFoot(buttons){ // buttons: array of {label,cls,fn,disabled}
   var f=$('footSlot'); f.innerHTML='';
   buttons.forEach(function(b){
+    if(b.hint){ f.appendChild(el('div','foothint',b.hint)); return; } // Hinweis statt deaktiviertem Knopf (AK-07)
     var btn=el('button','btn'+(b.cls?' '+b.cls:''), b.label);
     if(b.disabled)btn.disabled=true;
     btn.onclick=b.fn; f.appendChild(btn); b._el=btn;
@@ -474,7 +513,7 @@ function renderMC(q,card){
     };
     btns.push({b:b,origIdx:origIdx}); wrap.appendChild(b);
   });
-  setFoot([{label:'Wähle eine Antwort',fn:function(){},disabled:true}]);
+  setFoot([{hint:'Wähle eine Antwort'}]);
 }
 
 /* multi */
@@ -523,7 +562,7 @@ function renderTF(q,card){
     };
     wrap.appendChild(b);
   });
-  setFoot([{label:'Wahr oder Falsch?',fn:function(){},disabled:true}]);
+  setFoot([{hint:'Wahr oder Falsch?'}]);
 }
 
 /* match */
@@ -719,12 +758,12 @@ function initWheelFab(){
   var ifr=document.createElement('iframe'); ifr.id='aromaFabFrame'; ifr.title='Aromarad';
   sheet.appendChild(bar); sheet.appendChild(ifr);
   document.body.appendChild(fab); document.body.appendChild(sheet);
-  fab.onclick=function(){ if(!ifr.getAttribute('src')){ ifr.setAttribute('src',(CFG.wheelSrc||'aromarad.html')+'?theme='+((store.theme==='dark')?'dark':'light')); } sheet.classList.add('on'); };
+  fab.onclick=function(){ if(!ifr.getAttribute('src')){ ifr.setAttribute('src',(CFG.wheelSrc||'aromarad.html')+'?theme='+shownTheme()); } sheet.classList.add('on'); };
   close.onclick=function(){ sheet.classList.remove('on'); };
 }
 
 /* ---------- init ---------- */
-applyTheme(); refreshHeader(); renderHome(); initWheelFab();
+akzentAnpassen(); applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 </script>
 
 <style id="dl-style">
@@ -751,7 +790,7 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 .dlov .dlfoot{flex:0 0 auto;padding:12px 18px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px}
 .dlov .dlgo{border:none;border-radius:16px;padding:17px;font-size:17px;font-weight:800;color:#fff;cursor:pointer;width:100%}
 .dlov .dlgo:active{filter:brightness(.93)}
-.dlov .dlskip{background:none;border:none;font-size:13px;opacity:.55;cursor:pointer;padding:8px;color:inherit}
+.dlov .dlskip{background:none;border:none;font-size:13px;opacity:.55;cursor:pointer;padding:8px;color:inherit;min-height:44px}
 </style>
 <script id="dl-lessons" type="application/json">{"cats":{"Wein verstehen":{"lead":"Wein entsteht durch Gärung von Traubensaft – Rebsorte, Klima und Handwerk prägen den Stil.","points":["Hefe wandelt Zucker in Alkohol und CO₂ um (Gärung).","Rotwein vergärt mit Schalen (Farbe & Tannin), Weißwein meist ohne.","„Terroir“ = Zusammenspiel von Boden, Klima und Lage.","Stahltank = frisch; Holzfass = würziger und cremiger."],"more":"Restzucker, Säure, Alkohol und Tannin bilden das Geschmacksgerüst."},"Geschmack & Verkostung":{"lead":"Verkosten heißt sehen, riechen, schmecken – in dieser Reihenfolge.","points":["Sehen: Farbe & Klarheit verraten Alter und Sorte.","Riechen: Schwenken setzt Aromen frei (Frucht, Würze, Holz).","Schmecken: Süße, Säure, Tannin, Körper, Abgang beachten.","Tannin trocknet/zieht zusammen; Säure macht den Mund wässrig."],"more":"„Trocken“ heißt wenig Restzucker – nicht „herb durch Tannin“."},"Servieren & Genießen":{"lead":"Temperatur, Glas und Timing entscheiden über den Genuss mit.","points":["Weißwein kühler (ca. 8–12 °C), Rotwein ca. 16–18 °C.","Junge, tanninreiche Rote profitieren vom Dekantieren/Belüften.","Großes Glas für Rotwein, schlanker für frischen Weißwein.","Faustregel: kräftiges Gericht → kräftiger Wein."],"more":"Säurebetonte Weine sind oft die flexibelsten Essensbegleiter."},"Weiße Rebsorten":{"lead":"Weiße Sorten reichen von knackig-frisch bis cremig-üppig – ein paar Leitsorten genügen zur Orientierung.","points":["Riesling: hohe Säure, Apfel/Zitrus/Pfirsich, oft langlebig.","Sauvignon Blanc: grasig, Stachelbeere, sehr aromatisch.","Chardonnay: wandelbar – von stählern bis butterig.","Grauburgunder/Pinot Gris: mild, körperreich."],"more":"Säure ist bei Weißwein das Rückgrat für Frische und Lagerfähigkeit."},"Rote Rebsorten":{"lead":"Rote Sorten unterscheiden sich vor allem in Tannin, Frucht und Körper.","points":["Cabernet Sauvignon: tanninreich, schwarze Johannisbeere, Struktur.","Pinot Noir/Spätburgunder: hell, feine Frucht, wenig Tannin.","Merlot: weich, pflaumig, zugänglich.","Syrah/Shiraz: dunkel, pfeffrig-würzig."],"more":"Tannin stammt aus Schalen, Kernen und Holz – es macht Wein lagerfähig."},"Regionen Deutschland":{"lead":"Deutschland ist Riesling-Land – kühles Klima bringt Finesse und Säure.","points":["13 Anbaugebiete, u. a. Mosel, Rheingau, Pfalz, Baden.","Mosel: filigrane, oft restsüße Rieslinge von Steillagen.","Prädikate: Kabinett, Spätlese, Auslese … (steigende Reife).","„Trocken“, „feinherb“, „edelsüß“ beschreiben den Restzucker."],"more":"Die VDP-Klassifikation gliedert nach Lagen (Gutswein bis Großes Gewächs)."},"Regionen Frankreich":{"lead":"Frankreich denkt in Herkunft („Appellation“), nicht in Rebsorte auf dem Etikett.","points":["Bordeaux: Cuvées aus Cabernet/Merlot, links- vs. rechtsufrig.","Burgund: Pinot Noir & Chardonnay, kleinteilige Lagen („Climats“).","Champagne: Schaumwein per traditioneller Flaschengärung.","Rhône: Syrah (Nord) und Grenache-Cuvées (Süd)."],"more":"AOC/AOP garantiert Herkunft und Regeln, nicht automatisch Spitzenqualität."},"Regionen Europa":{"lead":"Neben Frankreich prägen Italien, Spanien & Co. die europäische Weinwelt.","points":["Italien: Sangiovese (Chianti), Nebbiolo (Barolo), riesige Vielfalt.","Spanien: Tempranillo (Rioja), oft mit Eichenausbau („Crianza/Reserva“).","Portugal: Port (aufgespritet) und kräftige Douro-Rote.","DOC/DOCG (IT) und DO/DOCa (ES) sind Herkunftssiegel."],"more":"Kühlere Höhenlagen liefern auch im Süden frische Weine."},"Neue Welt":{"lead":"„Neue Welt“ meint Weinländer außerhalb Europas – oft sortenrein und fruchtbetont.","points":["Etikett nennt meist die Rebsorte (z. B. „Malbec“).","Argentinien: Malbec; Chile: Cabernet/Carménère.","Australien: Shiraz; Neuseeland: Sauvignon Blanc (Marlborough).","USA: Kalifornien (Napa) für kräftige Cabernets & Chardonnay."],"more":"Wärmeres Klima → reifere Frucht, mehr Alkohol, weichere Säure."},"Schaumwein":{"lead":"Die Bläschen kommen von CO₂ aus einer zweiten Gärung.","points":["Méthode traditionnelle: zweite Gärung in der Flasche (Champagner, Cava, Sekt b. A.).","Tankgärung (Charmat): fruchtig & günstiger (z. B. Prosecco).","Süßegrade: Brut Nature/Brut … bis Doux.","Kühl servieren (~6–8 °C), hohes Glas für stehende Perlage."],"more":"„Champagner“ darf nur aus der Champagne kommen – sonst Crémant, Sekt, Cava …"},"Süßwein & Rosé":{"lead":"Süße und Rosé entstehen durch gezielte Technik – nicht durch Zucker im Glas.","points":["Edelsüße: Botrytis („Edelfäule“) konzentriert Zucker (Sauternes, Auslesen).","Eiswein: gefrorene Trauben werden gepresst.","Rosé: kurzer Schalenkontakt roter Trauben gibt die Farbe.","Süße braucht Säure als Gegenspieler, sonst wirkt sie pappig."],"more":"Restsüße macht Weine oft erstaunlich langlebig."},"Ikonen-Weine":{"lead":"Manche Weine sind Legenden – ihr Ruf erklärt sich aus Herkunft, Stil und Seltenheit.","points":["Bordeaux Premiers Crus (Lafite, Latour …) – Klassifikation von 1855.","Burgund: Grand-Cru-Lagen wie Romanée-Conti.","Champagne-Prestige-Cuvées und Kult-Cabernets aus Napa.","Preis ≠ Genuss: Spannende Weine gibt es in jeder Lage."],"more":"Reife, Lagerung und Provenienz bestimmen den Wert von Sammlerweinen."},"Aromarad & Verkostung":{"lead":"Das Aromarad hilft, Weinaromen zu benennen – von der groben Familie zur konkreten Note.","points":["Erst Gruppe (Frucht, Blüte, Würze, Holz), dann verfeinern.","Primäraromen = Rebsorte, Sekundär = Gärung, Tertiär = Reifung.","Schwenken und Riechen vor dem Schmecken.","Wortschatz macht Verkostung vergleichbar."],"more":"„Petrol“ beim reifen Riesling ist typisch, kein Fehler."}},"mixed":{"Grundlagen":{"lead":"Quer durch die Wein-Basics: Entstehung, Verkosten, Servieren.","points":["12 zufällige Fragen, kein Zeitdruck.","Süße, Säure, Tannin, Körper – das Grundgerüst.","Tannin trocknet, Säure macht den Mund wässrig."]},"Vertiefung":{"lead":"Rebsorten und Regionen im Schnelldurchlauf.","points":["Frankreich denkt in Herkunft, Neue Welt in Rebsorte.","Riesling = Säure, Pinot Noir = Finesse.","Klassifikationen sind Herkunfts-, nicht Geschmacksgarantien."]},"Aromarad":{"lead":"Trainiere deinen Aroma-Wortschatz.","points":["Von grob nach fein benennen.","Primär/Sekundär/Tertiär unterscheiden."]}},"mixedDefault":{"lead":"Eine bunt gemischte Übungsrunde. Kein Zeitdruck.","points":["12 zufällige Fragen aus diesem Bereich.","Süße, Säure, Tannin, Körper im Blick behalten."]}}</script>
 <script id="dl-logic">
@@ -829,7 +868,7 @@ applyTheme(); refreshHeader(); renderHome(); initWheelFab();
 .anspill{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:var(--shadow)}
 #cardSlot .opt{min-height:48px}
 #cardSlot .tf{gap:10px}
-#cardSlot .tf button{min-height:0!important;flex:1;padding:8px 10px!important;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px}
+#cardSlot .tf button{min-height:48px!important;flex:1;padding:8px 10px!important;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px}
 #cardSlot .tf button .e{font-size:17px;line-height:1}
 #cardSlot .mitem{min-height:46px;display:flex;align-items:center;justify-content:center;text-align:center}
 #cardSlot .oitem{min-height:46px;cursor:grab;user-select:none}
@@ -944,6 +983,13 @@ html.qlock #footSlot{flex:0 0 auto;margin-top:8px}
   window.addEventListener('orientationchange', function(){ setTimeout(set, 250); });
   window.addEventListener('pageshow', set);
 })();
+</script>
+<script>
+/* Service Worker (02.10.2026, Q-2): App laeuft offline, loescht nur eigene Caches (sw.js).
+   Nicht im iframe registrieren. */
+if ("serviceWorker" in navigator && window.top === window) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
 </script>
 </body>
 </html>
