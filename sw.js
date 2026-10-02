@@ -8,7 +8,7 @@
    "::" als Trenner, damit "kaffee::" nicht auch "kaffee-nachschlagewerk::v1" trifft. */
 
 const PRAEFIX = "wein-lern-app::";
-const CACHE = PRAEFIX + "v3";          // bei jeder Änderung an der App hochzählen
+const CACHE = PRAEFIX + "v4";          // bei jeder Änderung an der App hochzählen
 const ALT_PRAEFIXE = [];               // frühere Cache-Namen dieser App
 const KERN = [
   "./",
@@ -21,7 +21,8 @@ const KERN = [
 ];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(KERN)).then(() => self.skipWaiting()));
+  // cache:"reload": am HTTP-Cache des Browsers vorbei, sonst kann nach einem Update noch die alte Fassung in den neuen Cache geraten
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(KERN.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
